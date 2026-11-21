@@ -1,6 +1,5 @@
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { COLORES } from '@/constants/tema';
@@ -9,15 +8,9 @@ import { useBiblioteca } from '@/hooks/useBiblioteca';
 // Stack raíz de la app. Está en un componente aparte porque necesita leer la
 // sesión del Context, y el provider se crea justo afuera (en el layout raíz).
 export function PilaRaiz() {
+  // Al iniciar sesión, el guard de /login pasa a false y el login se cierra
+  // solo; desde ahí, "Personal" (LinkPersonal) lleva directo a /mostrador.
   const { sesionIniciada } = useBiblioteca();
-
-  // Apenas se inicia sesión, se abre el mostrador. El login ya no existe en
-  // ese momento (su guard pasó a false), así que se cerró solo.
-  useEffect(() => {
-    if (sesionIniciada) {
-      router.push('/mostrador');
-    }
-  }, [sesionIniciada]);
 
   return (
     <>

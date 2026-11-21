@@ -46,12 +46,21 @@ export const INFO_PERMISOS: Record<
 
 // En Android 13+ el diálogo de notificaciones no aparece si la app no tiene
 // ningún canal: por eso se crea ANTES de pedir el permiso.
-export async function crearCanalPrestamos() {
-  if (Platform.OS === 'android') {
+// Devuelve true si el canal "prestamos" quedó creado. En Expo Go (SDK 58,
+// Android) crear un canal propio falla dentro de Expo Go: en ese caso la app
+// sigue igual y usa el canal por defecto (no es un error para la persona).
+export async function crearCanalPrestamos(): Promise<boolean> {
+  if (Platform.OS !== 'android') {
+    return false;
+  }
+  try {
     await setNotificationChannelAsync(CANAL_PRESTAMOS, {
       name: 'Préstamos',
       importance: AndroidImportance.HIGH,
     });
+    return true;
+  } catch {
+    return false;
   }
 }
 

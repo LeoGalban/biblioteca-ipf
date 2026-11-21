@@ -1,11 +1,14 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link, usePathname } from 'expo-router';
-import { StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { Pantalla } from '@/components/Pantalla';
 import {
   AREA_TACTIL_MINIMA,
   COLORES,
   ESPACIADO,
+  ICONO,
+  RADIO,
   TAMANO_TEXTO,
 } from '@/constants/tema';
 
@@ -14,10 +17,13 @@ export default function NoEncontrada() {
 
   return (
     <Pantalla centrada>
+      <Ionicons name="compass-outline" size={ICONO.grande} color={COLORES.acento} />
       <Text style={styles.titulo}>No encontramos esta página</Text>
       <Text style={styles.ruta}>{ruta}</Text>
-      <Link href="/" style={styles.link} accessibilityRole="button">
-        Volver al Catálogo
+      <Link href="/" dismissTo asChild>
+        <Pressable accessibilityRole="button" style={styles.boton}>
+          <Text style={styles.textoBoton}>Volver al Catálogo</Text>
+        </Pressable>
       </Link>
     </Pantalla>
   );
@@ -25,6 +31,7 @@ export default function NoEncontrada() {
 
 const styles = StyleSheet.create({
   titulo: {
+    marginTop: ESPACIADO.md,
     fontSize: TAMANO_TEXTO.titulo,
     fontWeight: 'bold',
     color: COLORES.texto,
@@ -32,17 +39,26 @@ const styles = StyleSheet.create({
   },
   ruta: {
     marginTop: ESPACIADO.sm,
+    paddingHorizontal: ESPACIADO.md,
+    paddingVertical: ESPACIADO.xs,
+    borderRadius: RADIO.pildora,
+    backgroundColor: COLORES.primarioClaro,
     fontSize: TAMANO_TEXTO.normal,
-    color: COLORES.textoSuave,
+    color: COLORES.primario,
     textAlign: 'center',
   },
-  link: {
+  boton: {
     marginTop: ESPACIADO.xl,
     minHeight: AREA_TACTIL_MINIMA,
-    paddingVertical: ESPACIADO.md,
-    paddingHorizontal: ESPACIADO.lg,
+    paddingHorizontal: ESPACIADO.xl,
+    borderRadius: RADIO.grande,
+    backgroundColor: COLORES.primario,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textoBoton: {
     fontSize: TAMANO_TEXTO.normal,
     fontWeight: 'bold',
-    color: COLORES.primario,
+    color: COLORES.textoSobrePrimario,
   },
 });

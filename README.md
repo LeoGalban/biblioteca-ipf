@@ -152,20 +152,26 @@ PS>
 
 ## Capturas
 
-Pendientes de agregar en `docs/capturas/` (lo pide F2):
+Tomadas con Expo Go en el emulador de Android (Android 16). Las imágenes están en `docs/capturas/`.
+El escáner con la cámara funcionando (estado "concedido") se prueba en el teléfono real, porque
+el emulador no tiene una cámara que pueda leer un código de barras.
 
-- [ ] Catálogo cargando
-- [ ] Catálogo con error ("Reintentar")
-- [ ] Catálogo con datos (y "Vistos recientemente")
-- [ ] Buscador (`/buscar?q=borges`)
-- [ ] Detalle inexistente (`/libro/123` o un ISBN que no existe)
-- [ ] Reserva con ejemplares (préstamo a 7 días)
-- [ ] Reserva sin ejemplares (lista de espera con posición)
-- [ ] Escáner: cargando
-- [ ] Escáner: concedido (cámara)
-- [ ] Escáner: preguntable ("Usar la cámara")
-- [ ] Escáner: bloqueado ("Abrir Ajustes" + ingreso manual)
-- [ ] Notificación recibida (recordatorio a 15 s)
-- [ ] Mostrador antes de "Entregar al siguiente"
-- [ ] Mostrador después de "Entregar al siguiente"
-- [ ] Pantalla 404
+| Catálogo cargando | Catálogo con error | Catálogo con datos |
+|---|---|---|
+| <img src="docs/capturas/01-catalogo-cargando.png" width="220" alt="Catálogo cargando"> | <img src="docs/capturas/02-catalogo-error.png" width="220" alt="Catálogo con error y Reintentar"> | <img src="docs/capturas/03-catalogo-datos.png" width="220" alt="Catálogo con datos y vistos recientemente"> |
+
+| Buscador | Detalle inexistente | Pantalla 404 |
+|---|---|---|
+| <img src="docs/capturas/04-buscador.png" width="220" alt="Buscador con q=borges"> | <img src="docs/capturas/05-detalle-inexistente.png" width="220" alt="Detalle de un ISBN inexistente"> | <img src="docs/capturas/15-pantalla-404.png" width="220" alt="Pantalla 404 con la URL"> |
+
+| Reserva con ejemplares | Reserva sin ejemplares |
+|---|---|
+| <img src="docs/capturas/06-reserva-con-ejemplares.png" width="220" alt="Reserva con ejemplares: préstamo a 7 días"> | <img src="docs/capturas/07-reserva-sin-ejemplares.png" width="220" alt="Reserva sin ejemplares: lista de espera con posición"> |
+
+| Escáner: cargando | Escáner: preguntable | Pantalla previa del permiso | Escáner: bloqueado |
+|---|---|---|---|
+| <img src="docs/capturas/08-escaner-cargando.png" width="180" alt="Escáner cargando"> | <img src="docs/capturas/10-escaner-preguntable.png" width="180" alt="Escáner: Usar la cámara"> | <img src="docs/capturas/16-permiso-pantalla-previa.png" width="180" alt="Pantalla previa: beneficio y Continuar"> | <img src="docs/capturas/11-escaner-bloqueado.png" width="180" alt="Escáner: Abrir Ajustes e ingreso manual"> |
+
+| Notificación recibida | Mostrador antes | Mostrador después |
+|---|---|---|
+| <img src="docs/capturas/12-notificacion-recibida.png" width="220" alt="Notificación de recordatorio recibida"> | <img src="docs/capturas/13-mostrador-antes.png" width="220" alt="Mostrador antes de Entregar al siguiente"> | <img src="docs/capturas/14-mostrador-despues.png" width="220" alt="Mostrador después de Entregar al siguiente"> |

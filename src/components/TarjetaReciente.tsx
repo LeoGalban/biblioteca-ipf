@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { PortadaLibro } from '@/components/PortadaLibro';
@@ -11,22 +11,22 @@ type Props = {
 
 // Tapa + título de un libro visto hace poco: al tocarla vuelve a su detalle.
 export function TarjetaReciente({ libro }: Props) {
+  function abrirDetalle() {
+    router.push({ pathname: '/libro/[isbn]', params: { isbn: libro.isbn } });
+  }
+
   return (
-    <Link
-      href={{ pathname: '/libro/[isbn]', params: { isbn: libro.isbn } }}
-      asChild
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Visto recientemente: ${libro.titulo}`}
+      onPress={abrirDetalle}
+      style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Visto recientemente: ${libro.titulo}`}
-        style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
-      >
-        <PortadaLibro isbn={libro.isbn} titulo={libro.titulo} tamano="mediana" />
-        <Text style={styles.titulo} numberOfLines={2}>
-          {libro.titulo}
-        </Text>
-      </Pressable>
-    </Link>
+      <PortadaLibro isbn={libro.isbn} titulo={libro.titulo} tamano="mediana" />
+      <Text style={styles.titulo} numberOfLines={2}>
+        {libro.titulo}
+      </Text>
+    </Pressable>
   );
 }
 

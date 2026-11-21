@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { type Href, Link } from 'expo-router';
+import { type Href, router } from 'expo-router';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -22,22 +22,25 @@ type Props = {
 
 // Acceso rápido con ícono, texto y una línea de ayuda ("Buscar", "Escanear").
 export function BotonAcceso({ href, icono, texto, descripcion }: Props) {
+  function abrir() {
+    router.push(href);
+  }
+
   return (
-    <Link href={href} asChild>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityHint={descripcion}
-        style={({ pressed }) => [styles.boton, pressed && styles.presionado]}
-      >
-        <View style={styles.circulo}>
-          <Ionicons name={icono} size={ICONO.normal} color={COLORES.primario} />
-        </View>
-        <Text style={styles.texto}>{texto}</Text>
-        <Text style={styles.descripcion} numberOfLines={2}>
-          {descripcion}
-        </Text>
-      </Pressable>
-    </Link>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityHint={descripcion}
+      onPress={abrir}
+      style={({ pressed }) => [styles.boton, pressed && styles.presionado]}
+    >
+      <View style={styles.circulo}>
+        <Ionicons name={icono} size={ICONO.normal} color={COLORES.primario} />
+      </View>
+      <Text style={styles.texto}>{texto}</Text>
+      <Text style={styles.descripcion} numberOfLines={2}>
+        {descripcion}
+      </Text>
+    </Pressable>
   );
 }
 

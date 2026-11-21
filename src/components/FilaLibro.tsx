@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Link } from 'expo-router';
+import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Insignia } from '@/components/Insignia';
@@ -39,33 +39,35 @@ export function FilaLibro({ libro }: Props) {
     insignia = <Insignia texto={`${enEspera} en espera`} tipo="aviso" />;
   }
 
+  // Se navega desde onPress (y no con <Link asChild>) porque Link no le pasa
+  // al Pressable el estilo escrito como función ({ pressed }) => ...
+  function abrirDetalle() {
+    router.push({ pathname: '/libro/[isbn]', params: { isbn: libro.isbn } });
+  }
+
   return (
-    <Link
-      href={{ pathname: '/libro/[isbn]', params: { isbn: libro.isbn } }}
-      asChild
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${libro.titulo}, de ${libro.autor}`}
+      onPress={abrirDetalle}
+      style={({ pressed }) => [styles.fila, pressed && styles.presionada]}
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${libro.titulo}, de ${libro.autor}`}
-        style={({ pressed }) => [styles.fila, pressed && styles.presionada]}
-      >
-        <PortadaLibro isbn={libro.isbn} titulo={libro.titulo} />
-        <View style={styles.textos}>
-          <Text style={styles.titulo} numberOfLines={2}>
-            {libro.titulo}
-          </Text>
-          <Text style={styles.autor} numberOfLines={1}>
-            {libro.autor} · {libro.anio}
-          </Text>
-          {insignia}
-        </View>
-        <Ionicons
-          name="chevron-forward"
-          size={ICONO.chico}
-          color={COLORES.textoSuave}
-        />
-      </Pressable>
-    </Link>
+      <PortadaLibro isbn={libro.isbn} titulo={libro.titulo} />
+      <View style={styles.textos}>
+        <Text style={styles.titulo} numberOfLines={2}>
+          {libro.titulo}
+        </Text>
+        <Text style={styles.autor} numberOfLines={1}>
+          {libro.autor} · {libro.anio}
+        </Text>
+        {insignia}
+      </View>
+      <Ionicons
+        name="chevron-forward"
+        size={ICONO.chico}
+        color={COLORES.textoSuave}
+      />
+    </Pressable>
   );
 }
 

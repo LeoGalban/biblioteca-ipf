@@ -162,7 +162,7 @@ Hago lo mismo al desencolar en el mostrador (`:264-266`) y al apilar en reciente
 | Préstamos y reservas | **Context** (`prestamos`, `BibliotecaContext.tsx:82`) | Los usan varias pantallas que no son padre e hijo: el detalle, el modal de reserva, Mis reservas y el mostrador. |
 | Listas de espera | **Context** (`esperas: Record<isbn, Cola>`, `:83`) | Las modifican la reserva (encolar) y el mostrador (desencolar), y las leen el detalle y Mis reservas. |
 | Vistos recientemente | **Context** (`pilaRecientes`, `:84`) | El detalle escribe y el Catálogo lee. Son pantallas distintas, y además el detalle se desmonta al volver. |
-| Sesión del personal | **Context** (`sesionIniciada`, `:85`) | La necesita el `Stack.Protected` del Stack raíz (`PilaRaiz.tsx:48` y `:56`) y el link "Personal". |
+| Sesión del personal | **Context** (`sesionIniciada`, `:85`) | La necesita el `Stack.Protected` del Stack raíz (`PilaRaiz.tsx:41` y `:49`) y el link "Personal". |
 | Ejemplares disponibles | **Se calcula** (`disponibles(libro)`, `:118-123`) | Se deriva de `libro.ejemplares` menos los préstamos que salieron del estante. Si lo guardara, viviría en dos lugares y podría quedar desactualizado (ver E4d). |
 | Estado del permiso de cámara | **Sistema operativo**. La pantalla tiene una copia local en `usePermiso` (`usePermiso.ts:19`). | La verdad la tiene el SO: la persona lo puede cambiar en Ajustes. Por eso la copia se vuelve a consultar al ganar el foco y al volver a primer plano (`:21-47`). |
 | Identificador de la notificación programada | **Context**, dentro del préstamo (`recordatorioId`, `:247`) | Hace falta para cancelarla al desactivar "Recordarme" o al devolver (`:202-204`, `:222-224`), y esas acciones viven en el Context. |
@@ -245,9 +245,9 @@ Para que no aparezca diez veces, guardo el último ISBN avisado en otro ref (`ul
 | `bibliotecaipf://libro/9789870001010` | Detalle de *Ficciones* (título en el header) | En el Stack de la tab Catálogo, el **Catálogo** (`index`), y en el raíz las `(tabs)` | `unstable_settings = { anchor: 'index' }` en `src/app/(tabs)/(catalogo)/_layout.tsx:13-15` y `anchor: '(tabs)'` en `src/app/_layout.tsx:11-13` |
 | `bibliotecaipf://libro/123` | La pantalla de detalle con "ISBN inválido" y el botón "Volver al Catálogo" | El Catálogo (mismo anchor) | `esIsbnValido` en `src/app/(tabs)/(catalogo)/libro/[isbn].tsx:18` y `:32-41` |
 | `bibliotecaipf://buscar?q=borges` | El buscador con "borges" escrito y *Ficciones* y *El Aleph* | Las `(tabs)` con el Catálogo | `anchor: '(tabs)'` (`src/app/_layout.tsx:11-13`) y `useLocalSearchParams` (`buscar.tsx:24`) |
-| `bibliotecaipf://mostrador` (sin sesión) | No ve el mostrador: queda en el Catálogo | Nada encima de las `(tabs)` | `<Stack.Protected guard={sesionIniciada}>` (`src/components/PilaRaiz.tsx:56-58`): sin sesión la ruta no está disponible |
+| `bibliotecaipf://mostrador` (sin sesión) | No ve el mostrador: queda en el Catálogo | Nada encima de las `(tabs)` | `<Stack.Protected guard={sesionIniciada}>` (`src/components/PilaRaiz.tsx:49-51`): sin sesión la ruta no está disponible |
 | `bibliotecaipf://reserva` | La pestaña **Mis reservas** | Las `(tabs)` | `<Redirect href="/reservas" />` en `src/app/reserva.tsx` |
-| `bibliotecaipf://escanear` (cámara bloqueada) | "La cámara está desactivada…", el botón "Abrir Ajustes" y el ingreso manual del ISBN | Las `(tabs)` con el Catálogo | `estadoDe` (`src/lib/permisos.ts:77-84`) vía `usePermiso`, y la rama `bloqueado` de `escanear.tsx:85-91` |
+| `bibliotecaipf://escanear` (cámara bloqueada) | "La cámara está desactivada…", el botón "Abrir Ajustes" y el ingreso manual del ISBN | Las `(tabs)` con el Catálogo | `estadoDe` (`src/lib/permisos.ts:86-93`) vía `usePermiso`, y la rama `bloqueado` de `escanear.tsx:85-91` |
 
 > Comprobado en: ____________ (con `exp://IP:8081/--/…`)
 
@@ -303,7 +303,7 @@ Si hubiera usado solo `useFocusEffect`, el caso que fallaría es volver de Ajust
 
 **a) En iOS** el sistema muestra el diálogo **una sola vez**. El resultado cambia en el **paso 2**: después del primer "No permitir" queda `status: denied` y `canAskAgain: false`. Mi pantalla previa pasa directamente a **Abrir Ajustes**, y en el paso 3 Escanear ya muestra el estado `bloqueado`. Los pasos 3 a 5 se ven igual que el 5 de Android.
 
-**b)** La línea que decide es `src/lib/permisos.ts:82`:
+**b)** La línea que decide es `src/lib/permisos.ts:91`:
 
 ```ts
 if (respuesta.canAskAgain) return 'preguntable';
@@ -329,9 +329,9 @@ El problema: la notificación llega aunque en la app no figure ningún préstamo
 
 Lo resolvería guardando préstamos e ids con `@react-native-async-storage/async-storage` (desafío A6) y, al iniciar, conciliando con `getAllScheduledNotificationsAsync()`: cancelar las notificaciones cuyo préstamo ya no existe.
 
-**c)** En Android 13 o superior las notificaciones necesitan el permiso en tiempo de ejecución `POST_NOTIFICATIONS`, y el sistema **no muestra el diálogo si la app no tiene ningún canal de notificaciones**. Por eso `pedir('notificaciones')` crea el canal "prestamos" **antes** de pedir (`src/lib/permisos.ts:67-73`, con `crearCanalPrestamos` en `:49-56`).
+**c)** En Android 13 o superior las notificaciones necesitan el permiso en tiempo de ejecución `POST_NOTIFICATIONS`, y el sistema **no muestra el diálogo si la app no tiene ningún canal de notificaciones**. Por eso `pedir('notificaciones')` crea el canal "prestamos" **antes** de pedir (`src/lib/permisos.ts:76-82`, con `crearCanalPrestamos` en `:52-67`).
 
-En **Android 12** no existe ese permiso: las notificaciones vienen permitidas al instalar la app, y `requestPermissionsAsync()` devuelve `granted` sin mostrar ningún diálogo. El canal igual hace falta desde Android 8 para poder **mostrar** la notificación, por eso también se crea antes de programarla (`src/lib/notificaciones.ts:28`).
+En **Android 12** no existe ese permiso: las notificaciones vienen permitidas al instalar la app, y `requestPermissionsAsync()` devuelve `granted` sin mostrar ningún diálogo. El canal igual hace falta desde Android 8 para poder **mostrar** la notificación, por eso también se intenta crear antes de programarla (`canalDisponible` en `src/lib/notificaciones.ts`).
 
 **d)** Me entero por un **aviso dentro de la app**, en "Mis reservas": "Ya podés retirar "…" en el mostrador. Devolvelo antes del …".
 
@@ -384,6 +384,7 @@ Todo lo demás se bloquea con `blockedPermissions` (`app.json:18-30`, justificad
 - **El nombre de la app en Ajustes**: los permisos aparecen bajo "Expo Go", no bajo "Biblioteca IPF".
 - **`blockedPermissions`**: el manifiesto que se usa es el de Expo Go.
 - **El color del ícono de las notificaciones y el canal por defecto** del plugin.
+- **El canal "prestamos"**: en el emulador (Android 16, Expo Go SDK 58), `setNotificationChannelAsync` falla **dentro de Expo Go** con un `NullPointerException` nativo. Por eso `crearCanalPrestamos` (`src/lib/permisos.ts:52-67`) devuelve `false` en vez de cortar todo: la app igual pide el permiso y programa el recordatorio en el canal por defecto de Expo Go (la notificación llegó a los 15 s, captura 12).
 
 La razón es que Expo Go es un binario ya compilado: los plugins de `app.json` solo se aplican cuando se genera **mi** proyecto nativo. Lo verificaría con una **development build** (`npx expo run:android` o `eas build --profile development`), viendo el diálogo con mi texto (desafío A6) y revisando el `AndroidManifest.xml` y el `Info.plist` generados con `npx expo prebuild`.
 

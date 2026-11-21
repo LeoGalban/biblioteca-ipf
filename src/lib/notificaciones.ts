@@ -22,10 +22,15 @@ export function configurarNotificaciones() {
   });
 }
 
+// Canal a usar: "prestamos" si se pudo crear; si no, el canal por defecto.
+async function canalDisponible(): Promise<string | undefined> {
+  return (await crearCanalPrestamos()) ? CANAL_PRESTAMOS : undefined;
+}
+
 // Programa el recordatorio de devolución y devuelve su identificador
 // (hace falta guardarlo para poder cancelarlo después).
 export async function programarRecordatorio(titulo: string): Promise<string> {
-  await crearCanalPrestamos();
+  const channelId = await canalDisponible();
   return scheduleNotificationAsync({
     content: {
       title: 'Recordatorio de devolución',
@@ -34,7 +39,7 @@ export async function programarRecordatorio(titulo: string): Promise<string> {
     trigger: {
       type: SchedulableTriggerInputTypes.TIME_INTERVAL,
       seconds: SEGUNDOS_RECORDATORIO,
-      channelId: CANAL_PRESTAMOS,
+      channelId,
     },
   });
 }
@@ -45,9 +50,9 @@ export function cancelarRecordatorio(id: string) {
 
 // Notificación inmediata (por ejemplo, "ya podés retirar tu libro").
 export async function notificarAhora(titulo: string, cuerpo: string) {
-  await crearCanalPrestamos();
+  const channelId = await canalDisponible();
   return scheduleNotificationAsync({
     content: { title: titulo, body: cuerpo },
-    trigger: { channelId: CANAL_PRESTAMOS },
+    trigger: channelId ? { channelId } : null,
   });
 }
