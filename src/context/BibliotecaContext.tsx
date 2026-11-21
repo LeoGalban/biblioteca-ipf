@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useState } from 'react';
+import { createContext, type ReactNode, useCallback, useState } from 'react';
 
 import {
   CANTIDAD_RECIENTES,
@@ -90,7 +90,11 @@ export function BibliotecaProvider({ children }: Props) {
 
   // ── Acciones ─────────────────────────────────────────────────────────────
 
-  function registrarVisto(isbn: string) {
+  // useCallback con [] → siempre es la MISMA función. El detalle la usa en las
+  // dependencias de su useEffect: si cambiara en cada render del provider, el
+  // efecto se volvería a ejecutar (y un detalle que quedó debajo en la pila
+  // volvería a apilar su libro).
+  const registrarVisto = useCallback((isbn: string) => {
     setPilaRecientes((actual) => {
       // Si ya está en el tope, no se apila de nuevo (y no hay re-render).
       if (actual.tope() === isbn) return actual;
@@ -98,7 +102,7 @@ export function BibliotecaProvider({ children }: Props) {
       nueva.push(isbn);
       return nueva;
     });
-  }
+  }, []);
 
   function reservar(libro: Libro): ResultadoReserva {
     if (tienePrestamo(libro.isbn) || posicionEnEspera(libro.isbn) !== null) {

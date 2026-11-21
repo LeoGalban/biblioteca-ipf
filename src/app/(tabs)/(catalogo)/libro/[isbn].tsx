@@ -1,4 +1,5 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { BotonPrincipal } from '@/components/BotonPrincipal';
@@ -16,10 +17,23 @@ export default function DetalleLibro() {
   // useLocalSearchParams devuelve SIEMPRE texto: hay que validarlo.
   const { isbn } = useLocalSearchParams<{ isbn: string }>();
   const { libros, cargando, error, reintentar } = useLibros();
-  const { disponibles, personasEnEspera } = useBiblioteca();
+  const { disponibles, personasEnEspera, registrarVisto } = useBiblioteca();
+
+  const isbnValido = esIsbnValido(isbn);
+  const libro = isbnValido ? libros.find((l) => l.isbn === isbn) : undefined;
+  const isbnEncontrado = libro?.isbn;
+
+  // Al abrir el detalle de un libro que existe, se apila en "Vistos recientemente".
+  // Depende del ISBN (texto), no del objeto libro: así no se vuelve a ejecutar
+  // cuando llega una copia nueva del mismo libro desde la API.
+  useEffect(() => {
+    if (isbnEncontrado) {
+      registrarVisto(isbnEncontrado);
+    }
+  }, [isbnEncontrado, registrarVisto]);
 
   // 1. ¿El parámetro tiene forma de ISBN? (13 dígitos)
-  if (!esIsbnValido(isbn)) {
+  if (!isbnValido) {
     return (
       <>
         <Stack.Screen options={{ title: 'ISBN inválido' }} />
@@ -41,7 +55,6 @@ export default function DetalleLibro() {
   }
 
   // 2. ¿Existe un libro con ese ISBN en el catálogo?
-  const libro = libros.find((l) => l.isbn === isbn);
   if (!libro) {
     return (
       <>
