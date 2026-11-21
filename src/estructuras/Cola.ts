@@ -43,4 +43,15 @@ export class Cola<T> {
   aArray(): T[] {
     return this.#items.slice(this.#frente);
   }
+
+  // Cola NUEVA con los mismos elementos y en el mismo orden.
+  // En React no mutamos la cola que está en el estado: copiamos, cambiamos
+  // la copia y la guardamos con setState, así React ve una referencia nueva.
+  copiar(): Cola<T> {
+    const nueva = new Cola<T>();
+    for (const x of this.aArray()) {
+      nueva.encolar(x);
+    }
+    return nueva;
+  }
 }

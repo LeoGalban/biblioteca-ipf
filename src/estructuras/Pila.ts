@@ -33,4 +33,14 @@ export class Pila<T> {
   aArray(): T[] {
     return [...this.#items];
   }
+
+  // Pila NUEVA con los mismos elementos (misma base y mismo tope).
+  // Igual que en la Cola: en React se copia, se cambia la copia y se guarda.
+  copiar(): Pila<T> {
+    const nueva = new Pila<T>();
+    for (const x of this.#items) {
+      nueva.push(x);
+    }
+    return nueva;
+  }
 }
