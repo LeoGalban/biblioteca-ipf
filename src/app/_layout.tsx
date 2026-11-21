@@ -3,6 +3,11 @@ import { StyleSheet } from 'react-native';
 
 import { COLORES } from '@/constants/tema';
 import { BibliotecaProvider } from '@/context/BibliotecaContext';
+import { configurarNotificaciones } from '@/lib/notificaciones';
+
+// Se ejecuta una sola vez, al cargar la app: define cómo se muestran las
+// notificaciones que llegan mientras la app está abierta.
+configurarNotificaciones();
 
 // anchor: si la app se abre directo en /buscar (deep link), Expo Router
 // pone primero las tabs debajo en la pila, así "atrás" vuelve al Catálogo.

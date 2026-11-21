@@ -11,3 +11,6 @@ export const CANTIDAD_RECIENTES = 3;
 
 // Canal de Android para las notificaciones de préstamos.
 export const CANAL_PRESTAMOS = 'prestamos';
+
+// Modo demostración: el recordatorio llega a los 15 segundos (no a los 7 días).
+export const SEGUNDOS_RECORDATORIO = 15;

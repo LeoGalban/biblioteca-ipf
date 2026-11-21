@@ -15,6 +15,8 @@ import { ESPERAS_INICIALES } from '@/data/libros';
 import { Cola } from '@/estructuras/Cola';
 import { Pila } from '@/estructuras/Pila';
 import { formatearFecha } from '@/lib/fechas';
+import { cancelarRecordatorio, programarRecordatorio } from '@/lib/notificaciones';
+import { consultar, pedir } from '@/lib/permisos';
 import type { Libro } from '@/types';
 import type {
   Aviso,
@@ -38,7 +40,7 @@ export type ValorBiblioteca = {
   registrarVisto: (isbn: string) => void;
   reservar: (libro: Libro) => ResultadoReserva;
   devolver: (isbn: string) => void;
-  cambiarRecordatorio: (isbn: string, activo: boolean) => void;
+  cambiarRecordatorio: (isbn: string, activo: boolean) => Promise<void>;
   agregarAviso: (texto: string) => void;
   descartarAviso: (id: string) => void;
   iniciarSesion: () => void;
@@ -160,6 +162,7 @@ export function BibliotecaProvider({ children }: Props) {
           vence,
           desdeEspera: false,
           recordar: false,
+          recordatorioId: null,
         },
       ]);
       agregarAviso(
@@ -182,16 +185,58 @@ export function BibliotecaProvider({ children }: Props) {
 
   function devolver(isbn: string) {
     const prestamo = prestamos.find((p) => p.isbn === isbn);
-    setPrestamos((actuales) => actuales.filter((p) => p.isbn !== isbn));
-    if (prestamo) {
-      agregarAviso(`Devolviste "${prestamo.titulo}". ¡Gracias!`);
+    if (!prestamo) return;
+    // Si había un recordatorio programado, se cancela: el libro ya se devolvió.
+    if (prestamo.recordatorioId) {
+      cancelarRecordatorio(prestamo.recordatorioId);
     }
+    setPrestamos((actuales) => actuales.filter((p) => p.isbn !== isbn));
+    agregarAviso(`Devolviste "${prestamo.titulo}". ¡Gracias!`);
   }
 
-  function cambiarRecordatorio(isbn: string, activo: boolean) {
+  function actualizarPrestamo(isbn: string, cambios: Partial<Prestamo>) {
     setPrestamos((actuales) =>
-      actuales.map((p) => (p.isbn === isbn ? { ...p, recordar: activo } : p)),
+      actuales.map((p) => (p.isbn === isbn ? { ...p, ...cambios } : p)),
     );
+  }
+
+  // Interruptor "Recordarme". El permiso de notificaciones se pide SOLO acá,
+  // cuando la persona activa el recordatorio (pedido en contexto).
+  async function cambiarRecordatorio(isbn: string, activo: boolean) {
+    const prestamo = prestamos.find((p) => p.isbn === isbn);
+    if (!prestamo) return;
+
+    if (!activo) {
+      if (prestamo.recordatorioId) {
+        await cancelarRecordatorio(prestamo.recordatorioId);
+      }
+      actualizarPrestamo(isbn, { recordar: false, recordatorioId: null });
+      return;
+    }
+
+    // El interruptor responde al instante; la notificación se agrega después.
+    actualizarPrestamo(isbn, { recordar: true });
+
+    try {
+      let permiso = await consultar('notificaciones');
+      if (!permiso.granted && permiso.canAskAgain) {
+        permiso = await pedir('notificaciones'); // crea el canal y pide
+      }
+
+      if (!permiso.granted) {
+        // Sin permiso la app no se bloquea: el aviso aparece dentro de la app.
+        agregarAviso(
+          `Las notificaciones están desactivadas, así que te lo recordamos acá: devolvé "${prestamo.titulo}" antes del ${formatearFecha(prestamo.vence)}.`,
+        );
+        return;
+      }
+
+      const id = await programarRecordatorio(prestamo.titulo);
+      actualizarPrestamo(isbn, { recordatorioId: id });
+    } catch {
+      actualizarPrestamo(isbn, { recordar: false, recordatorioId: null });
+      agregarAviso('No pudimos programar el recordatorio. Probá de nuevo en un rato.');
+    }
   }
 
   function iniciarSesion() {

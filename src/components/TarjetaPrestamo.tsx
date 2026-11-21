@@ -1,6 +1,7 @@
 import { StyleSheet, Switch, Text, View } from 'react-native';
 
 import { BotonPrincipal } from '@/components/BotonPrincipal';
+import { SEGUNDOS_RECORDATORIO } from '@/constants/biblioteca';
 import {
   AREA_TACTIL_MINIMA,
   COLORES,
@@ -36,6 +37,12 @@ export function TarjetaPrestamo({ prestamo, onCambiarRecordar, onDevolver }: Pro
           thumbColor={COLORES.superficie}
         />
       </View>
+      {prestamo.recordatorioId && (
+        <Text style={styles.estadoRecordatorio}>
+          Recordatorio programado: llega en {SEGUNDOS_RECORDATORIO} segundos (modo
+          demostración).
+        </Text>
+      )}
 
       <BotonPrincipal texto="Devolver" onPress={onDevolver} secundario />
     </View>
@@ -69,5 +76,9 @@ const styles = StyleSheet.create({
   textoRecordar: {
     fontSize: TAMANO_TEXTO.normal,
     color: COLORES.texto,
+  },
+  estadoRecordatorio: {
+    fontSize: TAMANO_TEXTO.chico,
+    color: COLORES.exito,
   },
 });

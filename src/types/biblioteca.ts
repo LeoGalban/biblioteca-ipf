@@ -6,6 +6,7 @@ export type Prestamo = {
   vence: number; // fecha de devolución, en milisegundos (Date.getTime())
   desdeEspera: boolean; // true si llegó por la lista de espera (no salió del estante)
   recordar: boolean; // interruptor "Recordarme"
+  recordatorioId: string | null; // id de la notificación programada (para cancelarla)
 };
 
 // Un libro en cuya lista de espera estoy anotado.
