@@ -16,6 +16,13 @@ export type EsperaPropia = {
   total: number; // cuántas personas esperan en total
 };
 
+// Resumen de la lista de espera de un libro, para el mostrador.
+export type ListaEspera = {
+  isbn: string;
+  frente: string | undefined; // quién está primero (undefined si está vacía)
+  total: number;
+};
+
 // Mensaje que se muestra dentro de la app (en "Mis reservas").
 export type Aviso = {
   id: string;

@@ -15,12 +15,17 @@ import { ESPERAS_INICIALES } from '@/data/libros';
 import { Cola } from '@/estructuras/Cola';
 import { Pila } from '@/estructuras/Pila';
 import { formatearFecha } from '@/lib/fechas';
-import { cancelarRecordatorio, programarRecordatorio } from '@/lib/notificaciones';
+import {
+  cancelarRecordatorio,
+  notificarAhora,
+  programarRecordatorio,
+} from '@/lib/notificaciones';
 import { consultar, pedir } from '@/lib/permisos';
 import type { Libro } from '@/types';
 import type {
   Aviso,
   EsperaPropia,
+  ListaEspera,
   Prestamo,
   ResultadoReserva,
 } from '@/types/biblioteca';
@@ -30,6 +35,7 @@ type Esperas = Record<string, Cola<string>>;
 export type ValorBiblioteca = {
   prestamos: Prestamo[];
   misEsperas: EsperaPropia[];
+  listasDeEspera: ListaEspera[];
   avisos: Aviso[];
   recientes: string[]; // ISBN, del más reciente al más antiguo
   sesionIniciada: boolean;
@@ -43,6 +49,7 @@ export type ValorBiblioteca = {
   cambiarRecordatorio: (isbn: string, activo: boolean) => Promise<void>;
   agregarAviso: (texto: string) => void;
   descartarAviso: (id: string) => void;
+  entregarAlSiguiente: (isbn: string, titulo: string) => Promise<string>;
   iniciarSesion: () => void;
   cerrarSesion: () => void;
 };
@@ -90,6 +97,11 @@ export function BibliotecaProvider({ children }: Props) {
         ? []
         : [{ isbn, posicion: indice + 1, total: cola.tamanio }];
     },
+  );
+
+  // Para el mostrador: cada libro que tiene (o tuvo) lista de espera.
+  const listasDeEspera: ListaEspera[] = Object.entries(esperas).map(
+    ([isbn, cola]) => ({ isbn, frente: cola.frente(), total: cola.tamanio }),
   );
 
   // Los 3 del tope de la pila: aArray() va de la base al tope, así que se invierte.
@@ -239,6 +251,47 @@ export function BibliotecaProvider({ children }: Props) {
     }
   }
 
+  // "Entregar al siguiente": simula que se devolvió un ejemplar y se le
+  // entrega a la persona del frente de la Cola. Devuelve un mensaje para
+  // mostrar en el mostrador.
+  async function entregarAlSiguiente(isbn: string, titulo: string) {
+    const cola = esperas[isbn];
+    if (!cola || cola.vacia) {
+      return `Nadie está esperando "${titulo}".`;
+    }
+
+    // Igual que al encolar: se desencola de una COPIA y se guarda la copia.
+    const nueva = cola.copiar();
+    const persona = nueva.desencolar();
+    setEsperas((actuales) => ({ ...actuales, [isbn]: nueva }));
+
+    if (persona !== USUARIO_ACTUAL) {
+      return `Le entregaste "${titulo}" a ${persona}.`;
+    }
+
+    // La persona del frente sos vos: el libro pasa a ser un préstamo tuyo.
+    const vence = Date.now() + DIAS_PRESTAMO * MS_POR_DIA;
+    setPrestamos((actuales) => [
+      ...actuales,
+      { isbn, titulo, vence, desdeEspera: true, recordar: false, recordatorioId: null },
+    ]);
+
+    const texto = `Ya podés retirar "${titulo}" en el mostrador. Devolvelo antes del ${formatearFecha(vence)}.`;
+    try {
+      // Se consulta el permiso EN ESTE MOMENTO (no un valor guardado): la
+      // persona pudo cambiarlo en Ajustes desde la última vez.
+      const permiso = await consultar('notificaciones');
+      if (permiso.granted) {
+        await notificarAhora('¡Tu libro está listo!', texto);
+      } else {
+        agregarAviso(texto);
+      }
+    } catch {
+      agregarAviso(texto);
+    }
+    return `Le entregaste "${titulo}" a ${persona} (la persona usuaria de esta app).`;
+  }
+
   function iniciarSesion() {
     setSesionIniciada(true);
   }
@@ -250,6 +303,7 @@ export function BibliotecaProvider({ children }: Props) {
   const valor: ValorBiblioteca = {
     prestamos,
     misEsperas,
+    listasDeEspera,
     avisos,
     recientes,
     sesionIniciada,
@@ -263,6 +317,7 @@ export function BibliotecaProvider({ children }: Props) {
     cambiarRecordatorio,
     agregarAviso,
     descartarAviso,
+    entregarAlSiguiente,
     iniciarSesion,
     cerrarSesion,
   };

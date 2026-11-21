@@ -7,11 +7,15 @@ import {
   ESPACIADO,
   TAMANO_TEXTO,
 } from '@/constants/tema';
+import { useBiblioteca } from '@/hooks/useBiblioteca';
 
-// Link "Personal" del header del Catálogo: lleva al ingreso del personal.
+// Link "Personal" del header del Catálogo: sin sesión lleva al login,
+// con sesión directo al mostrador.
 export function LinkPersonal() {
+  const { sesionIniciada } = useBiblioteca();
+
   return (
-    <Link href="/login" asChild>
+    <Link href={sesionIniciada ? '/mostrador' : '/login'} asChild>
       <Pressable accessibilityRole="button" style={styles.boton}>
         <Text style={styles.texto}>Personal</Text>
       </Pressable>

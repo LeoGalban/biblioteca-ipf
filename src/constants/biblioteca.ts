@@ -9,6 +9,10 @@ export const DIAS_PRESTAMO = 7;
 // Cuántos "Vistos recientemente" muestra el Catálogo.
 export const CANTIDAD_RECIENTES = 3;
 
+// Credenciales fijas del personal de biblioteca (lo pide la consigna).
+export const USUARIO_PERSONAL = 'biblioteca';
+export const CLAVE_PERSONAL = 'ipf2026';
+
 // Canal de Android para las notificaciones de préstamos.
 export const CANAL_PRESTAMOS = 'prestamos';
 
