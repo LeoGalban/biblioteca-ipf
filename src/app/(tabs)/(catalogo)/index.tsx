@@ -1,21 +1,11 @@
-import {
-  ActivityIndicator,
-  FlatList,
-  type ListRenderItemInfo,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, type ListRenderItemInfo, StyleSheet } from 'react-native';
 
-import { Pantalla } from '@/components/Pantalla';
-import {
-  AREA_TACTIL_MINIMA,
-  COLORES,
-  ESPACIADO,
-  RADIO,
-  TAMANO_TEXTO,
-} from '@/constants/tema';
+import { AccesosCatalogo } from '@/components/AccesosCatalogo';
+import { EstadoCargando } from '@/components/EstadoCargando';
+import { EstadoError } from '@/components/EstadoError';
+import { EstadoVacio } from '@/components/EstadoVacio';
+import { FilaLibro } from '@/components/FilaLibro';
+import { COLORES, ESPACIADO } from '@/constants/tema';
 import { useLibros } from '@/hooks/useLibros';
 import type { Libro } from '@/types';
 
@@ -25,50 +15,31 @@ function claveLibro(libro: Libro) {
 }
 
 function renderizarLibro({ item }: ListRenderItemInfo<Libro>) {
-  return (
-    <View style={styles.fila}>
-      <Text style={styles.titulo}>{item.titulo}</Text>
-      <Text style={styles.autor}>
-        {item.autor} · {item.anio}
-      </Text>
-    </View>
-  );
+  return <FilaLibro libro={item} />;
 }
 
 export default function Catalogo() {
   const { libros, cargando, error, reintentar } = useLibros();
 
   if (cargando) {
-    return (
-      <Pantalla centrada>
-        <ActivityIndicator size="large" color={COLORES.primario} />
-        <Text style={styles.mensaje}>Cargando el catálogo…</Text>
-      </Pantalla>
-    );
+    return <EstadoCargando mensaje="Cargando el catálogo…" />;
   }
 
   if (error) {
     return (
-      <Pantalla centrada>
-        <Text style={styles.mensaje}>{error}</Text>
-        <Pressable
-          accessibilityRole="button"
-          onPress={reintentar}
-          style={styles.boton}
-        >
-          <Text style={styles.textoBoton}>Reintentar</Text>
-        </Pressable>
-      </Pantalla>
+      <EstadoError mensaje={error} textoAccion="Reintentar" onAccion={reintentar} />
     );
   }
 
   return (
     <FlatList
+      style={styles.fondo}
       data={libros}
       keyExtractor={claveLibro}
       renderItem={renderizarLibro}
+      ListHeaderComponent={<AccesosCatalogo />}
       ListEmptyComponent={
-        <Text style={styles.mensaje}>Todavía no hay libros en el catálogo.</Text>
+        <EstadoVacio mensaje="Todavía no hay libros en el catálogo." />
       }
       contentContainerStyle={styles.lista}
     />
@@ -76,46 +47,11 @@ export default function Catalogo() {
 }
 
 const styles = StyleSheet.create({
+  fondo: {
+    backgroundColor: COLORES.fondo,
+  },
   lista: {
     padding: ESPACIADO.lg,
     gap: ESPACIADO.sm,
-  },
-  fila: {
-    backgroundColor: COLORES.superficie,
-    borderRadius: RADIO.normal,
-    borderWidth: 1,
-    borderColor: COLORES.borde,
-    padding: ESPACIADO.md,
-  },
-  titulo: {
-    fontSize: TAMANO_TEXTO.normal,
-    fontWeight: 'bold',
-    color: COLORES.texto,
-  },
-  autor: {
-    marginTop: ESPACIADO.xs,
-    fontSize: TAMANO_TEXTO.chico,
-    color: COLORES.textoSuave,
-  },
-  mensaje: {
-    marginTop: ESPACIADO.md,
-    fontSize: TAMANO_TEXTO.normal,
-    color: COLORES.texto,
-    textAlign: 'center',
-  },
-  boton: {
-    marginTop: ESPACIADO.lg,
-    minHeight: AREA_TACTIL_MINIMA,
-    minWidth: AREA_TACTIL_MINIMA,
-    paddingHorizontal: ESPACIADO.xl,
-    borderRadius: RADIO.normal,
-    backgroundColor: COLORES.primario,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textoBoton: {
-    fontSize: TAMANO_TEXTO.normal,
-    fontWeight: 'bold',
-    color: COLORES.textoSobrePrimario,
   },
 });
