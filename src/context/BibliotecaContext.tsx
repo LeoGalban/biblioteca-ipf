@@ -1,4 +1,10 @@
-import { createContext, type ReactNode, useCallback, useState } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   CANTIDAD_RECIENTES,
@@ -8,13 +14,21 @@ import {
 import { ESPERAS_INICIALES } from '@/data/libros';
 import { Cola } from '@/estructuras/Cola';
 import { Pila } from '@/estructuras/Pila';
+import { formatearFecha } from '@/lib/fechas';
 import type { Libro } from '@/types';
-import type { Prestamo, ResultadoReserva } from '@/types/biblioteca';
+import type {
+  Aviso,
+  EsperaPropia,
+  Prestamo,
+  ResultadoReserva,
+} from '@/types/biblioteca';
 
 type Esperas = Record<string, Cola<string>>;
 
 export type ValorBiblioteca = {
   prestamos: Prestamo[];
+  misEsperas: EsperaPropia[];
+  avisos: Aviso[];
   recientes: string[]; // ISBN, del más reciente al más antiguo
   sesionIniciada: boolean;
   disponibles: (libro: Libro) => number;
@@ -24,6 +38,9 @@ export type ValorBiblioteca = {
   registrarVisto: (isbn: string) => void;
   reservar: (libro: Libro) => ResultadoReserva;
   devolver: (isbn: string) => void;
+  cambiarRecordatorio: (isbn: string, activo: boolean) => void;
+  agregarAviso: (texto: string) => void;
+  descartarAviso: (id: string) => void;
   iniciarSesion: () => void;
   cerrarSesion: () => void;
 };
@@ -57,8 +74,21 @@ export function BibliotecaProvider({ children }: Props) {
   const [esperas, setEsperas] = useState<Esperas>(crearEsperasIniciales);
   const [pilaRecientes, setPilaRecientes] = useState(() => new Pila<string>());
   const [sesionIniciada, setSesionIniciada] = useState(false);
+  const [avisos, setAvisos] = useState<Aviso[]>([]);
+  // Contador para darle a cada aviso un id único (se usa como key).
+  const proximoIdAviso = useRef(1);
 
   // ── Datos calculados (no se guardan: se derivan del estado) ──────────────
+
+  // Libros en cuya Cola estoy anotado, con mi posición.
+  const misEsperas: EsperaPropia[] = Object.entries(esperas).flatMap(
+    ([isbn, cola]) => {
+      const indice = cola.aArray().indexOf(USUARIO_ACTUAL);
+      return indice === -1
+        ? []
+        : [{ isbn, posicion: indice + 1, total: cola.tamanio }];
+    },
+  );
 
   // Los 3 del tope de la pila: aArray() va de la base al tope, así que se invierte.
   const recientes = pilaRecientes
@@ -104,6 +134,17 @@ export function BibliotecaProvider({ children }: Props) {
     });
   }, []);
 
+  function agregarAviso(texto: string) {
+    const id = String(proximoIdAviso.current);
+    proximoIdAviso.current += 1;
+    // El más nuevo primero.
+    setAvisos((actuales) => [{ id, texto }, ...actuales]);
+  }
+
+  function descartarAviso(id: string) {
+    setAvisos((actuales) => actuales.filter((a) => a.id !== id));
+  }
+
   function reservar(libro: Libro): ResultadoReserva {
     if (tienePrestamo(libro.isbn) || posicionEnEspera(libro.isbn) !== null) {
       return { tipo: 'repetida' };
@@ -113,8 +154,17 @@ export function BibliotecaProvider({ children }: Props) {
       const vence = Date.now() + DIAS_PRESTAMO * MS_POR_DIA;
       setPrestamos((actuales) => [
         ...actuales,
-        { isbn: libro.isbn, titulo: libro.titulo, vence, desdeEspera: false },
+        {
+          isbn: libro.isbn,
+          titulo: libro.titulo,
+          vence,
+          desdeEspera: false,
+          recordar: false,
+        },
       ]);
+      agregarAviso(
+        `Te llevás "${libro.titulo}". Devolvelo antes del ${formatearFecha(vence)}.`,
+      );
       return { tipo: 'prestamo', vence };
     }
 
@@ -124,11 +174,24 @@ export function BibliotecaProvider({ children }: Props) {
       cola.encolar(USUARIO_ACTUAL);
       return { ...actuales, [libro.isbn]: cola };
     });
+    agregarAviso(
+      `Quedaste en el puesto ${posicion} de la lista de espera de "${libro.titulo}".`,
+    );
     return { tipo: 'espera', posicion };
   }
 
   function devolver(isbn: string) {
+    const prestamo = prestamos.find((p) => p.isbn === isbn);
     setPrestamos((actuales) => actuales.filter((p) => p.isbn !== isbn));
+    if (prestamo) {
+      agregarAviso(`Devolviste "${prestamo.titulo}". ¡Gracias!`);
+    }
+  }
+
+  function cambiarRecordatorio(isbn: string, activo: boolean) {
+    setPrestamos((actuales) =>
+      actuales.map((p) => (p.isbn === isbn ? { ...p, recordar: activo } : p)),
+    );
   }
 
   function iniciarSesion() {
@@ -141,6 +204,8 @@ export function BibliotecaProvider({ children }: Props) {
 
   const valor: ValorBiblioteca = {
     prestamos,
+    misEsperas,
+    avisos,
     recientes,
     sesionIniciada,
     disponibles,
@@ -150,6 +215,9 @@ export function BibliotecaProvider({ children }: Props) {
     registrarVisto,
     reservar,
     devolver,
+    cambiarRecordatorio,
+    agregarAviso,
+    descartarAviso,
     iniciarSesion,
     cerrarSesion,
   };
