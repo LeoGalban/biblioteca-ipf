@@ -1,22 +1,23 @@
-import { useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text } from 'react-native';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
-import { Pantalla } from '@/components/Pantalla';
-import { COLORES, TAMANO_TEXTO } from '@/constants/tema';
+import { LibroNoEncontrado } from '@/components/LibroNoEncontrado';
+import { PantallaPreviaPermiso } from '@/components/PantallaPreviaPermiso';
+import { esRecurso, INFO_PERMISOS } from '@/lib/permisos';
 
-export default function PantallaPreviaPermiso() {
+export default function PermisoRecurso() {
   const { recurso } = useLocalSearchParams<{ recurso: string }>();
 
+  // El parámetro llega como texto: solo aceptamos "camara" o "notificaciones".
+  if (!esRecurso(recurso)) {
+    return (
+      <LibroNoEncontrado mensaje={`La app no usa ningún permiso llamado "${recurso}".`} />
+    );
+  }
+
   return (
-    <Pantalla centrada>
-      <Text style={styles.texto}>Permiso de {recurso}</Text>
-    </Pantalla>
+    <>
+      <Stack.Screen options={{ title: `Permiso: ${INFO_PERMISOS[recurso].nombre}` }} />
+      <PantallaPreviaPermiso recurso={recurso} />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  texto: {
-    fontSize: TAMANO_TEXTO.subtitulo,
-    color: COLORES.texto,
-  },
-});

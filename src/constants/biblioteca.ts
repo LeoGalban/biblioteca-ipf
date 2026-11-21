@@ -8,3 +8,6 @@ export const DIAS_PRESTAMO = 7;
 
 // Cuántos "Vistos recientemente" muestra el Catálogo.
 export const CANTIDAD_RECIENTES = 3;
+
+// Canal de Android para las notificaciones de préstamos.
+export const CANAL_PRESTAMOS = 'prestamos';
