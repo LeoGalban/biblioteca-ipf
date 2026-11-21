@@ -77,8 +77,8 @@ export async function pedir(recurso: Recurso): Promise<PermissionResponse> {
 export function estadoDe(respuesta: PermissionResponse | null): EstadoPermiso {
   if (respuesta === null) return 'cargando';
   if (respuesta.granted) return 'concedido';
-  // status solo dice "denied", tanto la primera vez como cuando ya quedó
-  // bloqueado: canAskAgain es lo que distingue los dos casos.
+  // Después de un "No permitir", status es "denied" tanto si todavía se puede
+  // volver a preguntar como si ya quedó bloqueado: canAskAgain los distingue.
   if (respuesta.canAskAgain) return 'preguntable';
   return 'bloqueado';
 }

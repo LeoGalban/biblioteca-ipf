@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { EstadoCargando } from '@/components/EstadoCargando';
 import { EstadoError } from '@/components/EstadoError';
+import { EstadoNotificaciones } from '@/components/EstadoNotificaciones';
 import { EstadoVacio } from '@/components/EstadoVacio';
 import { TarjetaAviso } from '@/components/TarjetaAviso';
 import { TarjetaEspera } from '@/components/TarjetaEspera';
@@ -10,6 +11,7 @@ import { TituloSeccion } from '@/components/TituloSeccion';
 import { COLORES, ESPACIADO } from '@/constants/tema';
 import { useBiblioteca } from '@/hooks/useBiblioteca';
 import { useLibros } from '@/hooks/useLibros';
+import { usePermiso } from '@/hooks/usePermiso';
 
 export default function MisReservas() {
   const {
@@ -22,6 +24,8 @@ export default function MisReservas() {
   } = useBiblioteca();
   // El catálogo hace falta para mostrar el título de cada lista de espera.
   const { libros, cargando, error, reintentar } = useLibros();
+  // Se vuelve a consultar al entrar a la pestaña (foco) y al volver de Ajustes.
+  const { estado: permisoNotificaciones } = usePermiso('notificaciones');
 
   if (cargando) {
     return <EstadoCargando mensaje="Cargando tus reservas…" />;
@@ -39,6 +43,10 @@ export default function MisReservas() {
 
   return (
     <ScrollView style={styles.fondo} contentContainerStyle={styles.contenido}>
+      <View style={styles.estadoPermiso}>
+        <EstadoNotificaciones estado={permisoNotificaciones} />
+      </View>
+
       {avisos.length > 0 && (
         <View style={styles.lista}>
           {avisos.map((aviso) => (
@@ -97,5 +105,8 @@ const styles = StyleSheet.create({
   },
   lista: {
     gap: ESPACIADO.sm,
+  },
+  estadoPermiso: {
+    marginBottom: ESPACIADO.sm,
   },
 });
