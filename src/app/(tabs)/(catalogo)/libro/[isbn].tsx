@@ -1,14 +1,10 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 
-import { BotonPrincipal } from '@/components/BotonPrincipal';
-import { DatoLibro } from '@/components/DatoLibro';
 import { EstadoCargando } from '@/components/EstadoCargando';
 import { EstadoError } from '@/components/EstadoError';
+import { FichaLibro } from '@/components/FichaLibro';
 import { LibroNoEncontrado } from '@/components/LibroNoEncontrado';
-import { Pantalla } from '@/components/Pantalla';
-import { COLORES, ESPACIADO, TAMANO_TEXTO } from '@/constants/tema';
 import { useBiblioteca } from '@/hooks/useBiblioteca';
 import { useLibros } from '@/hooks/useLibros';
 import { esIsbnValido } from '@/lib/isbn';
@@ -75,36 +71,15 @@ export default function DetalleLibro() {
   }
 
   return (
-    <Pantalla>
+    <>
       {/* El título del header es el del libro. */}
       <Stack.Screen options={{ title: libro.titulo }} />
-      <Text style={styles.titulo}>{libro.titulo}</Text>
-      <Text style={styles.autor}>{libro.autor}</Text>
-
-      <View style={styles.datos}>
-        <DatoLibro etiqueta="Año" valor={String(libro.anio)} />
-        <DatoLibro etiqueta="ISBN" valor={libro.isbn} />
-        <DatoLibro etiqueta="Ejemplares disponibles" valor={String(enEstante)} />
-        <DatoLibro etiqueta="Personas en lista de espera" valor={String(enEspera)} />
-      </View>
-
-      <BotonPrincipal texto="Reservar" onPress={irAReservar} />
-    </Pantalla>
+      <FichaLibro
+        libro={libro}
+        enEstante={enEstante}
+        enEspera={enEspera}
+        onReservar={irAReservar}
+      />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  titulo: {
-    fontSize: TAMANO_TEXTO.titulo,
-    fontWeight: 'bold',
-    color: COLORES.texto,
-  },
-  autor: {
-    marginTop: ESPACIADO.xs,
-    fontSize: TAMANO_TEXTO.subtitulo,
-    color: COLORES.textoSuave,
-  },
-  datos: {
-    marginVertical: ESPACIADO.xl,
-  },
-});

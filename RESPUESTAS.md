@@ -22,7 +22,7 @@ const [intento, setIntento] = useState(0);                 // :16
 
 **a) Render por render**
 
-Caso feliz (se monta el Catálogo, `src/app/(tabs)/(catalogo)/index.tsx:22-55`):
+Caso feliz (se monta el Catálogo, `src/app/(tabs)/(catalogo)/index.tsx:22-60`):
 
 | Render | `libros` | `cargando` | `error` | Qué lo provoca | Qué se ve |
 |---|---|---|---|---|---|
@@ -162,7 +162,7 @@ Hago lo mismo al desencolar en el mostrador (`:264-266`) y al apilar en reciente
 | Préstamos y reservas | **Context** (`prestamos`, `BibliotecaContext.tsx:82`) | Los usan varias pantallas que no son padre e hijo: el detalle, el modal de reserva, Mis reservas y el mostrador. |
 | Listas de espera | **Context** (`esperas: Record<isbn, Cola>`, `:83`) | Las modifican la reserva (encolar) y el mostrador (desencolar), y las leen el detalle y Mis reservas. |
 | Vistos recientemente | **Context** (`pilaRecientes`, `:84`) | El detalle escribe y el Catálogo lee. Son pantallas distintas, y además el detalle se desmonta al volver. |
-| Sesión del personal | **Context** (`sesionIniciada`, `:85`) | La necesita el `Stack.Protected` del Stack raíz (`PilaRaiz.tsx:41` y `:49`) y el link "Personal". |
+| Sesión del personal | **Context** (`sesionIniciada`, `:85`) | La necesita el `Stack.Protected` del Stack raíz (`PilaRaiz.tsx:48` y `:56`) y el link "Personal". |
 | Ejemplares disponibles | **Se calcula** (`disponibles(libro)`, `:118-123`) | Se deriva de `libro.ejemplares` menos los préstamos que salieron del estante. Si lo guardara, viviría en dos lugares y podría quedar desactualizado (ver E4d). |
 | Estado del permiso de cámara | **Sistema operativo**. La pantalla tiene una copia local en `usePermiso` (`usePermiso.ts:19`). | La verdad la tiene el SO: la persona lo puede cambiar en Ajustes. Por eso la copia se vuelve a consultar al ganar el foco y al volver a primer plano (`:21-47`). |
 | Identificador de la notificación programada | **Context**, dentro del préstamo (`recordatorioId`, `:247`) | Hace falta para cancelarla al desactivar "Recordarme" o al devolver (`:202-204`, `:222-224`), y esas acciones viven en el Context. |
@@ -194,7 +194,7 @@ Para evitarlo se podría dividir el Context en varios (por ejemplo, uno solo par
 
 **a) ¿Qué método usé en el paso 4?**
 
-`router.dismissTo('/reservas')` (`src/app/reservar/[isbn].tsx:20-22`).
+`router.dismissTo('/reservas')` (`src/app/reservar/[isbn].tsx:21-23`).
 
 - **Con `push`**: `/reservas` se apilaría **encima** del modal. "Atrás" volvería a la confirmación y se podría confirmar dos veces.
 - **Con `replace`**: el modal se cambiaría por `/reservas` dentro del Stack raíz, así que quedaría una segunda copia de las tabs encima de la primera. El historial quedaría raro y "atrás" mostraría otra vez el detalle con otras tabs.
@@ -243,9 +243,9 @@ Para que no aparezca diez veces, guardo el último ISBN avisado en otro ref (`ul
 | Link | Qué ve la persona | Qué queda debajo en la pila | Qué parte de mi código lo decide |
 |---|---|---|---|
 | `bibliotecaipf://libro/9789870001010` | Detalle de *Ficciones* (título en el header) | En el Stack de la tab Catálogo, el **Catálogo** (`index`), y en el raíz las `(tabs)` | `unstable_settings = { anchor: 'index' }` en `src/app/(tabs)/(catalogo)/_layout.tsx:13-15` y `anchor: '(tabs)'` en `src/app/_layout.tsx:11-13` |
-| `bibliotecaipf://libro/123` | La pantalla de detalle con "ISBN inválido" y el botón "Volver al Catálogo" | El Catálogo (mismo anchor) | `esIsbnValido` en `src/app/(tabs)/(catalogo)/libro/[isbn].tsx:22` y `:36-45` |
+| `bibliotecaipf://libro/123` | La pantalla de detalle con "ISBN inválido" y el botón "Volver al Catálogo" | El Catálogo (mismo anchor) | `esIsbnValido` en `src/app/(tabs)/(catalogo)/libro/[isbn].tsx:18` y `:32-41` |
 | `bibliotecaipf://buscar?q=borges` | El buscador con "borges" escrito y *Ficciones* y *El Aleph* | Las `(tabs)` con el Catálogo | `anchor: '(tabs)'` (`src/app/_layout.tsx:11-13`) y `useLocalSearchParams` (`buscar.tsx:24`) |
-| `bibliotecaipf://mostrador` (sin sesión) | No ve el mostrador: queda en el Catálogo | Nada encima de las `(tabs)` | `<Stack.Protected guard={sesionIniciada}>` (`src/components/PilaRaiz.tsx:49-51`): sin sesión la ruta no está disponible |
+| `bibliotecaipf://mostrador` (sin sesión) | No ve el mostrador: queda en el Catálogo | Nada encima de las `(tabs)` | `<Stack.Protected guard={sesionIniciada}>` (`src/components/PilaRaiz.tsx:56-58`): sin sesión la ruta no está disponible |
 | `bibliotecaipf://reserva` | La pestaña **Mis reservas** | Las `(tabs)` | `<Redirect href="/reservas" />` en `src/app/reserva.tsx` |
 | `bibliotecaipf://escanear` (cámara bloqueada) | "La cámara está desactivada…", el botón "Abrir Ajustes" y el ingreso manual del ISBN | Las `(tabs)` con el Catálogo | `estadoDe` (`src/lib/permisos.ts:77-84`) vía `usePermiso`, y la rama `bloqueado` de `escanear.tsx:85-91` |
 
@@ -253,7 +253,7 @@ Para que no aparezca diez veces, guardo el último ISBN avisado en otro ref (`ul
 
 **¿Por qué `/libro/123` llega a mi pantalla de detalle?**
 
-El segmento `[isbn]` es **dinámico**: el router acepta cualquier texto en esa posición y se lo pasa a la pantalla como parámetro. El router solo sabe de la **forma** de la URL, no de qué libros existen. La responsabilidad de responder bien es de la **pantalla**: valida que sean 13 dígitos (`:36`) y que el libro exista (`:58-67`), y si no, muestra un mensaje claro con salida al Catálogo.
+El segmento `[isbn]` es **dinámico**: el router acepta cualquier texto en esa posición y se lo pasa a la pantalla como parámetro. El router solo sabe de la **forma** de la URL, no de qué libros existen. La responsabilidad de responder bien es de la **pantalla**: valida que sean 13 dígitos (`:32`) y que el libro exista (`:54-63`), y si no, muestra un mensaje claro con salida al Catálogo.
 
 ### C4. Foco, montaje y primer plano
 
@@ -425,14 +425,14 @@ La razón es que Expo Go es un binario ya compilado: los plugins de `app.json` s
 **c) Reescritura con mis hooks y componentes** (es mi `src/app/(tabs)/(catalogo)/index.tsx`):
 
 ```tsx
-import { FlatList, type ListRenderItemInfo, StyleSheet } from 'react-native';
+import { FlatList, type ListRenderItemInfo, StyleSheet, Text } from 'react-native';
 
 import { EncabezadoCatalogo } from '@/components/EncabezadoCatalogo';
 import { EstadoCargando } from '@/components/EstadoCargando';
 import { EstadoError } from '@/components/EstadoError';
 import { EstadoVacio } from '@/components/EstadoVacio';
 import { FilaLibro } from '@/components/FilaLibro';
-import { COLORES, ESPACIADO } from '@/constants/tema';
+import { COLORES, ESPACIADO, TAMANO_TEXTO } from '@/constants/tema';
 import { useBiblioteca } from '@/hooks/useBiblioteca';
 import { useLibros } from '@/hooks/useLibros';
 import type { Libro } from '@/types';
@@ -464,9 +464,13 @@ export default function Catalogo() {
       data={libros}
       keyExtractor={claveLibro}
       renderItem={renderizarLibro}
-      // Accesos a Buscar y Escanear (con texto, rol y 44 × 44) + vistos recientemente.
-      ListHeaderComponent={<EncabezadoCatalogo vistos={vistos} />}
+      // Bienvenida, accesos a Buscar y Escanear (con texto, rol y 44 × 44)
+      // y vistos recientemente con sus tapas.
+      ListHeaderComponent={<EncabezadoCatalogo vistos={vistos} cantidad={libros.length} />}
       ListEmptyComponent={<EstadoVacio mensaje="Todavía no hay libros en el catálogo." />}
+      ListFooterComponent={
+        <Text style={styles.creditos}>Tapas de los libros: Open Library</Text>
+      }
       contentContainerStyle={styles.lista}
     />
   );
@@ -474,7 +478,13 @@ export default function Catalogo() {
 
 const styles = StyleSheet.create({
   fondo: { backgroundColor: COLORES.fondo },
-  lista: { padding: ESPACIADO.lg, gap: ESPACIADO.sm },
+  lista: { padding: ESPACIADO.lg, gap: ESPACIADO.md },
+  creditos: {
+    marginTop: ESPACIADO.md,
+    fontSize: TAMANO_TEXTO.mini,
+    color: COLORES.textoSuave,
+    textAlign: 'center',
+  },
 });
 ```
 
@@ -522,13 +532,13 @@ Ninguna pantalla cambia, porque todas usan `useLibros` y `useBusqueda`, que depe
 | Situación | Qué ve la persona | Dónde se maneja |
 |---|---|---|
 | `obtenerLibros()` falla | Ícono de nube tachada, "No pudimos cargar el catálogo. Revisá tu conexión y probá de nuevo." y el botón **Reintentar** | `src/hooks/useLibros.ts:31-35` (mensaje en `:6-7`) y `src/app/(tabs)/(catalogo)/index.tsx:30-34` |
-| Se abre `/libro/abc` | Header "ISBN inválido", ""abc" no es un ISBN válido: tiene que tener 13 números, sin guiones." y el botón **Volver al Catálogo** | `src/app/(tabs)/(catalogo)/libro/[isbn].tsx:36-45` y `src/components/LibroNoEncontrado.tsx` |
+| Se abre `/libro/abc` | Header "ISBN inválido", ""abc" no es un ISBN válido: tiene que tener 13 números, sin guiones." y el botón **Volver al Catálogo** | `src/app/(tabs)/(catalogo)/libro/[isbn].tsx:32-41` y `src/components/LibroNoEncontrado.tsx` |
 | Se escanea un ISBN que no está en el catálogo | Aviso amarillo "El ISBN … no está en el catálogo de la biblioteca. Podés probar con otro libro." (una sola vez), y la cámara sigue activa | `src/app/escanear.tsx:45-49` y `:60-63` |
 | La cámara está bloqueada | "La cámara está desactivada para esta app. Podés activarla en Ajustes o escribir el ISBN a mano.", el botón **Abrir Ajustes** y el ingreso manual | `src/app/escanear.tsx:85-91`, `src/components/EscanerSinPermiso.tsx` y `src/components/IngresoManualIsbn.tsx` |
 | Las notificaciones están denegadas | Al activar "Recordarme": aviso en Mis reservas "Las notificaciones están desactivadas, así que te lo recordamos acá: devolvé … antes del …". Arriba de la pestaña: "Notificaciones desactivadas: los recordatorios y avisos te aparecen acá." | `src/context/BibliotecaContext.tsx:238-243` y `:283-288`, `src/components/EstadoNotificaciones.tsx` |
-| Se intenta reservar un libro ya reservado | "Ya tenés este libro prestado." o "Ya estás en la lista de espera de este libro, en el puesto N.", con el botón **Ver mis reservas** | `src/app/reservar/[isbn].tsx:62-78` (y doble control en `BibliotecaContext.tsx:163-165`) |
-| "Entregar al siguiente" con la lista de espera vacía | "Nadie está esperando este libro." y el botón **deshabilitado**. Si igual se llamara, el mensaje "Nadie está esperando "…"." | `src/components/TarjetaMostrador.tsx:34` y `src/context/BibliotecaContext.tsx:258-261` |
-| Login con clave incorrecta | "El usuario o la clave no son correctos. Revisalos y probá de nuevo." El modal sigue abierto para corregir. | `src/app/login.tsx:24-27` y `src/lib/sesion.ts` |
+| Se intenta reservar un libro ya reservado | "Ya tenés este libro prestado." o "Ya estás en la lista de espera de este libro, en el puesto N.", con el botón **Ver mis reservas** | `src/app/reservar/[isbn].tsx:63-79` (y doble control en `BibliotecaContext.tsx:163-165`) |
+| "Entregar al siguiente" con la lista de espera vacía | "Nadie está esperando este libro." y el botón **deshabilitado**. Si igual se llamara, el mensaje "Nadie está esperando "…"." | `src/components/TarjetaMostrador.tsx:48` y `src/context/BibliotecaContext.tsx:258-261` |
+| Login con clave incorrecta | "El usuario o la clave no son correctos. Revisalos y probá de nuevo." El modal sigue abierto para corregir. | `src/app/login.tsx:26-29` y `src/lib/sesion.ts` |
 
 ### E4. Decisiones con argumentos
 
@@ -550,7 +560,7 @@ La contra son los **libros sin ISBN** (muy viejos o donaciones). Para esos usar�
 
 El proyecto tiene activado el **React Compiler** (`app.json:65`, `"reactCompiler": true`), que memoriza automáticamente valores y funciones de los componentes. Por eso no envolví el `value` del Context en `useMemo`: el compilador ya lo reutiliza mientras no cambie el estado.
 
-- **Dónde sí aporta:** `registrarVisto` con `useCallback([])` (`BibliotecaContext.tsx:141-149`). Es **dependencia de un efecto** del detalle (`libro/[isbn].tsx:29-33`). Si cambiara en cada render del provider, el efecto se volvería a ejecutar, y un detalle que quedó debajo en la pila podría volver a apilar su libro. Ahí la identidad estable es una cuestión de **corrección**, no solo de velocidad.
+- **Dónde sí aporta:** `registrarVisto` con `useCallback([])` (`BibliotecaContext.tsx:141-149`). Es **dependencia de un efecto** del detalle (`libro/[isbn].tsx:25-29`). Si cambiara en cada render del provider, el efecto se volvería a ejecutar, y un detalle que quedó debajo en la pila podría volver a apilar su libro. Ahí la identidad estable es una cuestión de **corrección**, no solo de velocidad.
 - **Dónde sería ruido:** un `useCallback` en `cancelar` o en `claveLibro` (ya están a nivel de módulo y nunca cambian), o un `useMemo` para `String(libro.anio)`. Cuesta más comparar las dependencias que recalcular.
 - **Cómo lo comprobaría:** con el **Profiler de React DevTools** (vía `j` en la terminal de Expo), viendo cuántas veces y por qué se renderiza cada componente antes y después del cambio. También se puede contar renders con un `console.log` temporal.
 

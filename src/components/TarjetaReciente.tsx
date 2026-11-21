@@ -1,20 +1,15 @@
 import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import {
-  AREA_TACTIL_MINIMA,
-  COLORES,
-  ESPACIADO,
-  RADIO,
-  TAMANO_TEXTO,
-} from '@/constants/tema';
+import { PortadaLibro } from '@/components/PortadaLibro';
+import { COLORES, ESPACIADO, TAMANO_TEXTO, TAPA } from '@/constants/tema';
 import type { Libro } from '@/types';
 
 type Props = {
   libro: Libro;
 };
 
-// Tarjeta chica de un libro visto hace poco: al tocarla vuelve a su detalle.
+// Tapa + título de un libro visto hace poco: al tocarla vuelve a su detalle.
 export function TarjetaReciente({ libro }: Props) {
   return (
     <Link
@@ -26,11 +21,9 @@ export function TarjetaReciente({ libro }: Props) {
         accessibilityLabel={`Visto recientemente: ${libro.titulo}`}
         style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
       >
+        <PortadaLibro isbn={libro.isbn} titulo={libro.titulo} tamano="mediana" />
         <Text style={styles.titulo} numberOfLines={2}>
           {libro.titulo}
-        </Text>
-        <Text style={styles.autor} numberOfLines={1}>
-          {libro.autor}
         </Text>
       </Pressable>
     </Link>
@@ -39,11 +32,8 @@ export function TarjetaReciente({ libro }: Props) {
 
 const styles = StyleSheet.create({
   tarjeta: {
-    flex: 1,
-    minHeight: AREA_TACTIL_MINIMA,
-    padding: ESPACIADO.sm,
-    borderRadius: RADIO.normal,
-    backgroundColor: COLORES.primarioClaro,
+    width: TAPA.mediana.ancho,
+    gap: ESPACIADO.xs,
   },
   presionada: {
     opacity: 0.7,
@@ -52,10 +42,5 @@ const styles = StyleSheet.create({
     fontSize: TAMANO_TEXTO.chico,
     fontWeight: 'bold',
     color: COLORES.texto,
-  },
-  autor: {
-    marginTop: ESPACIADO.xs,
-    fontSize: TAMANO_TEXTO.chico,
-    color: COLORES.textoSuave,
   },
 });

@@ -1,11 +1,11 @@
-import { FlatList, type ListRenderItemInfo, StyleSheet } from 'react-native';
+import { FlatList, type ListRenderItemInfo, StyleSheet, Text } from 'react-native';
 
 import { EncabezadoCatalogo } from '@/components/EncabezadoCatalogo';
 import { EstadoCargando } from '@/components/EstadoCargando';
 import { EstadoError } from '@/components/EstadoError';
 import { EstadoVacio } from '@/components/EstadoVacio';
 import { FilaLibro } from '@/components/FilaLibro';
-import { COLORES, ESPACIADO } from '@/constants/tema';
+import { COLORES, ESPACIADO, TAMANO_TEXTO } from '@/constants/tema';
 import { useBiblioteca } from '@/hooks/useBiblioteca';
 import { useLibros } from '@/hooks/useLibros';
 import type { Libro } from '@/types';
@@ -45,9 +45,14 @@ export default function Catalogo() {
       data={libros}
       keyExtractor={claveLibro}
       renderItem={renderizarLibro}
-      ListHeaderComponent={<EncabezadoCatalogo vistos={vistos} />}
+      ListHeaderComponent={
+        <EncabezadoCatalogo vistos={vistos} cantidad={libros.length} />
+      }
       ListEmptyComponent={
         <EstadoVacio mensaje="Todavía no hay libros en el catálogo." />
+      }
+      ListFooterComponent={
+        <Text style={styles.creditos}>Tapas de los libros: Open Library</Text>
       }
       contentContainerStyle={styles.lista}
     />
@@ -60,6 +65,12 @@ const styles = StyleSheet.create({
   },
   lista: {
     padding: ESPACIADO.lg,
-    gap: ESPACIADO.sm,
+    gap: ESPACIADO.md,
+  },
+  creditos: {
+    marginTop: ESPACIADO.md,
+    fontSize: TAMANO_TEXTO.mini,
+    color: COLORES.textoSuave,
+    textAlign: 'center',
   },
 });

@@ -8,6 +8,7 @@ import { EstadoCargando } from '@/components/EstadoCargando';
 import { EstadoError } from '@/components/EstadoError';
 import { LibroNoEncontrado } from '@/components/LibroNoEncontrado';
 import { Pantalla } from '@/components/Pantalla';
+import { PortadaLibro } from '@/components/PortadaLibro';
 import { DIAS_PRESTAMO } from '@/constants/biblioteca';
 import { COLORES, ESPACIADO, TAMANO_TEXTO } from '@/constants/tema';
 import { useBiblioteca } from '@/hooks/useBiblioteca';
@@ -91,6 +92,9 @@ export default function ConfirmarReserva() {
 
   return (
     <Pantalla>
+      <View style={styles.tapa}>
+        <PortadaLibro isbn={libro.isbn} titulo={libro.titulo} tamano="mediana" />
+      </View>
       <Text style={styles.titulo}>{libro.titulo}</Text>
       <Text style={styles.autor}>{libro.autor}</Text>
       <View style={styles.mensaje}>
@@ -108,15 +112,21 @@ export default function ConfirmarReserva() {
 }
 
 const styles = StyleSheet.create({
+  tapa: {
+    alignItems: 'center',
+    marginBottom: ESPACIADO.lg,
+  },
   titulo: {
     fontSize: TAMANO_TEXTO.titulo,
     fontWeight: 'bold',
     color: COLORES.texto,
+    textAlign: 'center',
   },
   autor: {
     marginTop: ESPACIADO.xs,
     fontSize: TAMANO_TEXTO.subtitulo,
     color: COLORES.textoSuave,
+    textAlign: 'center',
   },
   mensaje: {
     marginVertical: ESPACIADO.xl,

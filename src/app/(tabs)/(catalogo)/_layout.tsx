@@ -18,7 +18,10 @@ export default function LayoutCatalogo() {
   return (
     <Stack
       screenOptions={{
-        headerTintColor: COLORES.primario,
+        headerStyle: styles.header,
+        headerTintColor: COLORES.textoSobrePrimario,
+        headerTitleStyle: styles.tituloHeader,
+        headerShadowVisible: false,
         contentStyle: styles.contenido,
       }}
     >
@@ -34,5 +37,11 @@ export default function LayoutCatalogo() {
 const styles = StyleSheet.create({
   contenido: {
     backgroundColor: COLORES.fondo,
+  },
+  header: {
+    backgroundColor: COLORES.primario,
+  },
+  tituloHeader: {
+    fontWeight: 'bold',
   },
 });

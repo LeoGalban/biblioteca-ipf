@@ -1,9 +1,12 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 import {
   AREA_TACTIL_MINIMA,
   COLORES,
   ESPACIADO,
+  ICONO,
   RADIO,
   TAMANO_TEXTO,
 } from '@/constants/tema';
@@ -11,14 +14,17 @@ import {
 type Props = {
   texto: string;
   onPress: () => void;
+  icono?: ComponentProps<typeof Ionicons>['name'];
   secundario?: boolean;
   deshabilitado?: boolean;
 };
 
-// Botón con texto que usa toda la app. Área táctil mínima de 44 × 44.
+// Botón con texto (y un ícono opcional) que usa toda la app.
+// Área táctil mínima de 44 × 44.
 export function BotonPrincipal({
   texto,
   onPress,
+  icono,
   secundario = false,
   deshabilitado = false,
 }: Props) {
@@ -35,6 +41,13 @@ export function BotonPrincipal({
         pressed && styles.presionado,
       ]}
     >
+      {icono && (
+        <Ionicons
+          name={icono}
+          size={ICONO.chico}
+          color={secundario ? COLORES.primario : COLORES.textoSobrePrimario}
+        />
+      )}
       <Text style={[styles.texto, secundario && styles.textoSecundario]}>
         {texto}
       </Text>
@@ -44,24 +57,26 @@ export function BotonPrincipal({
 
 const styles = StyleSheet.create({
   boton: {
-    minHeight: AREA_TACTIL_MINIMA,
+    minHeight: AREA_TACTIL_MINIMA + ESPACIADO.xs,
     minWidth: AREA_TACTIL_MINIMA,
+    flexDirection: 'row',
+    gap: ESPACIADO.sm,
     paddingHorizontal: ESPACIADO.xl,
-    borderRadius: RADIO.normal,
+    borderRadius: RADIO.grande,
     backgroundColor: COLORES.primario,
     alignItems: 'center',
     justifyContent: 'center',
   },
   secundario: {
     backgroundColor: COLORES.superficie,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORES.primario,
   },
   deshabilitado: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
   presionado: {
-    opacity: 0.8,
+    opacity: 0.85,
   },
   texto: {
     fontSize: TAMANO_TEXTO.normal,

@@ -25,6 +25,20 @@ Escanear el QR con **Expo Go** (teléfono y computadora en la misma red Wi-Fi).
 - **Libros con lista de espera inicial**: *El Aleph* (2 personas) y *Don Segundo Sombra* (1 persona).
 - **Libros sin ejemplares**: *El Aleph*, *Don Segundo Sombra*, *El túnel*, *Estructuras de datos y algoritmos* y el segundo libro real.
 
+## Diseño e imágenes
+
+- Paleta en `src/constants/tema.ts`: azul profundo (headers y botones), dorado de acento y fondo
+  color papel. Tarjetas con sombra suave, bordes redondeados y etiquetas de disponibilidad.
+- **Tapas de los libros**: se cargan desde [Open Library](https://openlibrary.org)
+  (`covers.openlibrary.org`), un catálogo abierto que permite usar sus tapas citando la fuente.
+  Los identificadores están en `src/data/portadas.ts` y la URL se arma en `src/lib/portadas.ts`.
+  El crédito aparece al pie del Catálogo.
+- Si una tapa no existe o no carga (por ejemplo, sin conexión), `PortadaLibro` dibuja una tapa
+  de respaldo con el título y un color fijo por ISBN. La app nunca muestra un hueco.
+- Solo se usan componentes de React Native (`Image`, `View`…): no se agregaron módulos nativos
+  como `expo-image` o `expo-linear-gradient`, porque la consigna limita los módulos nativos a
+  `expo-camera` y `expo-notifications`.
+
 ## Árbol de rutas (`src/app`)
 
 ```

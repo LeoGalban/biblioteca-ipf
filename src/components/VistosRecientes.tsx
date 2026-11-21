@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { TarjetaReciente } from '@/components/TarjetaReciente';
-import { COLORES, ESPACIADO, TAMANO_TEXTO } from '@/constants/tema';
+import { TituloSeccion } from '@/components/TituloSeccion';
+import { ESPACIADO } from '@/constants/tema';
 import type { Libro } from '@/types';
 
 type Props = {
@@ -15,8 +16,8 @@ export function VistosRecientes({ libros }: Props) {
   }
 
   return (
-    <View style={styles.seccion}>
-      <Text style={styles.titulo}>Vistos recientemente</Text>
+    <View>
+      <TituloSeccion texto="Vistos recientemente" />
       <View style={styles.fila}>
         {libros.map((libro) => (
           <TarjetaReciente key={libro.isbn} libro={libro} />
@@ -27,17 +28,8 @@ export function VistosRecientes({ libros }: Props) {
 }
 
 const styles = StyleSheet.create({
-  seccion: {
-    marginBottom: ESPACIADO.lg,
-  },
-  titulo: {
-    marginBottom: ESPACIADO.sm,
-    fontSize: TAMANO_TEXTO.subtitulo,
-    fontWeight: 'bold',
-    color: COLORES.texto,
-  },
   fila: {
     flexDirection: 'row',
-    gap: ESPACIADO.sm,
+    gap: ESPACIADO.md,
   },
 });

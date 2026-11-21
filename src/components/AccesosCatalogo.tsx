@@ -7,8 +7,18 @@ import { ESPACIADO } from '@/constants/tema';
 export function AccesosCatalogo() {
   return (
     <View style={styles.fila}>
-      <BotonAcceso href="/buscar" icono="search-outline" texto="Buscar" />
-      <BotonAcceso href="/escanear" icono="barcode-outline" texto="Escanear" />
+      <BotonAcceso
+        href="/buscar"
+        icono="search"
+        texto="Buscar"
+        descripcion="Por título o autor"
+      />
+      <BotonAcceso
+        href="/escanear"
+        icono="barcode-outline"
+        texto="Escanear"
+        descripcion="El código de la contratapa"
+      />
     </View>
   );
 }
@@ -17,6 +27,6 @@ const styles = StyleSheet.create({
   fila: {
     flexDirection: 'row',
     gap: ESPACIADO.md,
-    marginBottom: ESPACIADO.md,
+    marginBottom: ESPACIADO.sm,
   },
 });

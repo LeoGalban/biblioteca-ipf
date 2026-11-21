@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -8,6 +9,7 @@ import {
   AREA_TACTIL_MINIMA,
   COLORES,
   ESPACIADO,
+  ICONO,
   RADIO,
   TAMANO_TEXTO,
 } from '@/constants/tema';
@@ -32,9 +34,15 @@ export default function Login() {
 
   return (
     <Pantalla>
-      <Text style={styles.texto}>
-        Ingreso solo para el personal de la biblioteca.
-      </Text>
+      <View style={styles.encabezado}>
+        <View style={styles.circulo}>
+          <Ionicons name="id-card-outline" size={ICONO.grande} color={COLORES.primario} />
+        </View>
+        <Text style={styles.titulo}>Personal de biblioteca</Text>
+        <Text style={styles.texto}>
+          Ingresá para entregar libros desde el mostrador.
+        </Text>
+      </View>
 
       <View style={styles.campos}>
         <TextInput
@@ -65,15 +73,31 @@ export default function Login() {
         </View>
       )}
 
-      <BotonPrincipal texto="Ingresar" onPress={ingresar} />
+      <BotonPrincipal texto="Ingresar" icono="log-in-outline" onPress={ingresar} />
     </Pantalla>
   );
 }
 
 const styles = StyleSheet.create({
+  encabezado: {
+    alignItems: 'center',
+    gap: ESPACIADO.sm,
+    marginTop: ESPACIADO.lg,
+  },
+  circulo: {
+    padding: ESPACIADO.lg,
+    borderRadius: RADIO.pildora,
+    backgroundColor: COLORES.acentoClaro,
+  },
+  titulo: {
+    fontSize: TAMANO_TEXTO.titulo,
+    fontWeight: 'bold',
+    color: COLORES.texto,
+  },
   texto: {
     fontSize: TAMANO_TEXTO.normal,
     color: COLORES.textoSuave,
+    textAlign: 'center',
   },
   campos: {
     marginVertical: ESPACIADO.lg,
@@ -82,7 +106,7 @@ const styles = StyleSheet.create({
   campo: {
     minHeight: AREA_TACTIL_MINIMA,
     paddingHorizontal: ESPACIADO.md,
-    borderRadius: RADIO.normal,
+    borderRadius: RADIO.grande,
     borderWidth: 1,
     borderColor: COLORES.borde,
     backgroundColor: COLORES.superficie,

@@ -85,6 +85,7 @@ export default function MisReservas() {
           {misEsperas.map((espera) => (
             <TarjetaEspera
               key={espera.isbn}
+              isbn={espera.isbn}
               titulo={tituloDe(espera.isbn)}
               posicion={espera.posicion}
               total={espera.total}

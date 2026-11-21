@@ -1,12 +1,16 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Switch, Text, View } from 'react-native';
 
 import { BotonPrincipal } from '@/components/BotonPrincipal';
+import { PortadaLibro } from '@/components/PortadaLibro';
 import { SEGUNDOS_RECORDATORIO } from '@/constants/biblioteca';
 import {
   AREA_TACTIL_MINIMA,
   COLORES,
   ESPACIADO,
+  ICONO,
   RADIO,
+  SOMBRA,
   TAMANO_TEXTO,
 } from '@/constants/tema';
 import { formatearFecha } from '@/lib/fechas';
@@ -18,14 +22,24 @@ type Props = {
   onDevolver: () => void;
 };
 
-// Un préstamo: fecha de devolución, interruptor "Recordarme" y botón "Devolver".
+// Un préstamo: tapa, fecha de devolución, interruptor "Recordarme" y "Devolver".
 export function TarjetaPrestamo({ prestamo, onCambiarRecordar, onDevolver }: Props) {
   return (
     <View style={styles.tarjeta}>
-      <Text style={styles.titulo}>{prestamo.titulo}</Text>
-      <Text style={styles.vence}>
-        Devolvelo antes del {formatearFecha(prestamo.vence)}
-      </Text>
+      <View style={styles.cabecera}>
+        <PortadaLibro isbn={prestamo.isbn} titulo={prestamo.titulo} />
+        <View style={styles.textos}>
+          <Text style={styles.titulo} numberOfLines={2}>
+            {prestamo.titulo}
+          </Text>
+          <View style={styles.vence}>
+            <Ionicons name="calendar-outline" size={ICONO.chico} color={COLORES.acento} />
+            <Text style={styles.textoVence}>
+              Devolvelo antes del {formatearFecha(prestamo.vence)}
+            </Text>
+          </View>
+        </View>
+      </View>
 
       <View style={styles.recordar}>
         <Text style={styles.textoRecordar}>Recordarme</Text>
@@ -44,18 +58,30 @@ export function TarjetaPrestamo({ prestamo, onCambiarRecordar, onDevolver }: Pro
         </Text>
       )}
 
-      <BotonPrincipal texto="Devolver" onPress={onDevolver} secundario />
+      <BotonPrincipal
+        texto="Devolver"
+        icono="return-down-back"
+        onPress={onDevolver}
+        secundario
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   tarjeta: {
-    padding: ESPACIADO.md,
-    borderRadius: RADIO.normal,
-    borderWidth: 1,
-    borderColor: COLORES.borde,
+    padding: ESPACIADO.lg,
+    borderRadius: RADIO.grande,
     backgroundColor: COLORES.superficie,
+    gap: ESPACIADO.md,
+    ...SOMBRA,
+  },
+  cabecera: {
+    flexDirection: 'row',
+    gap: ESPACIADO.md,
+  },
+  textos: {
+    flex: 1,
     gap: ESPACIADO.sm,
   },
   titulo: {
@@ -64,7 +90,13 @@ const styles = StyleSheet.create({
     color: COLORES.texto,
   },
   vence: {
-    fontSize: TAMANO_TEXTO.normal,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: ESPACIADO.xs,
+  },
+  textoVence: {
+    flex: 1,
+    fontSize: TAMANO_TEXTO.chico,
     color: COLORES.textoSuave,
   },
   recordar: {
@@ -72,9 +104,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: ESPACIADO.md,
+    borderRadius: RADIO.normal,
+    backgroundColor: COLORES.fondo,
   },
   textoRecordar: {
     fontSize: TAMANO_TEXTO.normal,
+    fontWeight: 'bold',
     color: COLORES.texto,
   },
   estadoRecordatorio: {

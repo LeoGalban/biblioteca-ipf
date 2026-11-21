@@ -22,8 +22,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: ESPACIADO.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORES.borde,
   },
   etiqueta: {
     fontSize: TAMANO_TEXTO.normal,

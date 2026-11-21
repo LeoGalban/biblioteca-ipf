@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
@@ -5,6 +6,7 @@ import {
   AREA_TACTIL_MINIMA,
   COLORES,
   ESPACIADO,
+  ICONO,
   TAMANO_TEXTO,
 } from '@/constants/tema';
 import { useBiblioteca } from '@/hooks/useBiblioteca';
@@ -17,6 +19,11 @@ export function LinkPersonal() {
   return (
     <Link href={sesionIniciada ? '/mostrador' : '/login'} asChild>
       <Pressable accessibilityRole="button" style={styles.boton}>
+        <Ionicons
+          name="person-circle-outline"
+          size={ICONO.chico}
+          color={COLORES.textoSobrePrimario}
+        />
         <Text style={styles.texto}>Personal</Text>
       </Pressable>
     </Link>
@@ -27,6 +34,8 @@ const styles = StyleSheet.create({
   boton: {
     minHeight: AREA_TACTIL_MINIMA,
     minWidth: AREA_TACTIL_MINIMA,
+    flexDirection: 'row',
+    gap: ESPACIADO.xs,
     paddingHorizontal: ESPACIADO.sm,
     alignItems: 'center',
     justifyContent: 'center',
@@ -34,6 +43,6 @@ const styles = StyleSheet.create({
   texto: {
     fontSize: TAMANO_TEXTO.normal,
     fontWeight: 'bold',
-    color: COLORES.primario,
+    color: COLORES.textoSobrePrimario,
   },
 });

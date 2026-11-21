@@ -1,4 +1,5 @@
 import { router, Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 
@@ -19,47 +20,60 @@ export function PilaRaiz() {
   }, [sesionIniciada]);
 
   return (
-    <Stack
-      screenOptions={{
-        headerTintColor: COLORES.primario,
-        contentStyle: styles.contenido,
-      }}
-    >
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="buscar" options={{ title: 'Buscar' }} />
-      <Stack.Screen name="escanear" options={{ title: 'Escanear' }} />
-      <Stack.Screen
-        name="reservar/[isbn]"
-        options={{ title: 'Confirmar reserva', presentation: 'modal' }}
-      />
-      <Stack.Screen
-        name="permisos/[recurso]"
-        options={{ title: 'Permiso', presentation: 'modal' }}
-      />
-
-      {/* /login solo existe SIN sesión: al iniciarla, sale del historial. */}
-      <Stack.Protected guard={!sesionIniciada}>
+    <>
+      {/* Íconos de la barra de estado en blanco, sobre el header azul. */}
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerStyle: styles.header,
+          headerTintColor: COLORES.textoSobrePrimario,
+          headerTitleStyle: styles.tituloHeader,
+          headerShadowVisible: false,
+          contentStyle: styles.contenido,
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="buscar" options={{ title: 'Buscar' }} />
+        <Stack.Screen name="escanear" options={{ title: 'Escanear' }} />
         <Stack.Screen
-          name="login"
-          options={{ title: 'Ingreso del personal', presentation: 'modal' }}
+          name="reservar/[isbn]"
+          options={{ title: 'Confirmar reserva', presentation: 'modal' }}
         />
-      </Stack.Protected>
+        <Stack.Screen
+          name="permisos/[recurso]"
+          options={{ title: 'Permiso', presentation: 'modal' }}
+        />
 
-      {/* /mostrador solo existe CON sesión: al cerrarla, sale del historial. */}
-      <Stack.Protected guard={sesionIniciada}>
-        <Stack.Screen name="mostrador" options={{ title: 'Mostrador' }} />
-      </Stack.Protected>
+        {/* /login solo existe SIN sesión: al iniciarla, sale del historial. */}
+        <Stack.Protected guard={!sesionIniciada}>
+          <Stack.Screen
+            name="login"
+            options={{ title: 'Ingreso del personal', presentation: 'modal' }}
+          />
+        </Stack.Protected>
 
-      <Stack.Screen
-        name="+not-found"
-        options={{ title: 'Página no encontrada' }}
-      />
-    </Stack>
+        {/* /mostrador solo existe CON sesión: al cerrarla, sale del historial. */}
+        <Stack.Protected guard={sesionIniciada}>
+          <Stack.Screen name="mostrador" options={{ title: 'Mostrador' }} />
+        </Stack.Protected>
+
+        <Stack.Screen
+          name="+not-found"
+          options={{ title: 'Página no encontrada' }}
+        />
+      </Stack>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   contenido: {
     backgroundColor: COLORES.fondo,
+  },
+  header: {
+    backgroundColor: COLORES.primario,
+  },
+  tituloHeader: {
+    fontWeight: 'bold',
   },
 });

@@ -42,6 +42,7 @@ export default function Mostrador() {
   function renderizarLista({ item }: ListRenderItemInfo<ListaEspera>) {
     return (
       <TarjetaMostrador
+        isbn={item.isbn}
         titulo={tituloDe(item.isbn)}
         frente={item.frente}
         total={item.total}
